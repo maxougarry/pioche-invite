@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rejoins-moi sur Pioche</title>
+<meta name="description" content="Ton ami t'invite sur Pioche : vos collections de jeux de société, entre amis.">
+<meta property="og:title" content="Rejoins-moi sur Pioche">
+<meta property="og:description" content="Vos collections de jeux de société, entre amis.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://maxougarry.github.io/pioche-invite/logo.png">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#2F7A52">
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito+Sans:opsz,wght@6..12,400;6..12,700&display=swap">
+<style>
+  :root {
+    --bg: #FFFFFF; --ink: #16171F; --muted: #5B5F6E; --line: #E7E7EC; --pine: #2F7A52; --on-pine: #FFFFFF; --wash: #F1F1F5;
+    --display: "Baloo 2", "Nunito Sans", system-ui, sans-serif;
+    --body: "Nunito Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1B1916; --ink: #F7F3EC; --muted: #ACA396; --line: #36322B; --wash: #28251F; color-scheme: dark; }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5;
+    padding: max(24px, env(safe-area-inset-top)) 20px max(32px, env(safe-area-inset-bottom));
+    display: grid; place-items: center;
+  }
+  main { width: 100%; max-width: 420px; display: grid; gap: 22px; }
+  .band { background: var(--pine); color: var(--on-pine); border-radius: 26px; padding: 28px 24px 26px; display: grid; gap: 10px; justify-items: start; }
+  .band img { width: 72px; height: 72px; border-radius: 18px; background: #fff; padding: 6px; }
+  h1 { font-family: var(--display); font-weight: 800; font-size: 2rem; line-height: 1.05; margin: 6px 0 0; text-wrap: balance; }
+  .band p { margin: 0; opacity: .92; }
+  .open {
+    display: flex; align-items: center; justify-content: center; min-height: 54px; border-radius: 999px;
+    background: var(--pine); color: var(--on-pine); font-weight: 700; font-size: 1.05rem; text-decoration: none;
+  }
+  .open:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+  .help { display: grid; gap: 8px; border-top: 1px solid var(--line); padding-top: 18px; color: var(--muted); font-size: .95rem; }
+  .help h2 { font-size: 1rem; margin: 0; color: var(--ink); }
+  .help p { margin: 0; }
+  .error { background: var(--wash); border-radius: 16px; padding: 16px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <section class="band">
+    <img src="logo.png" alt="" width="72" height="72">
+    <h1>Rejoins-moi sur Pioche</h1>
+    <p>Vos collections de jeux de société, entre amis : voir ce que chacun a, choisir à quoi jouer, se prêter des boîtes.</p>
+  </section>
+
+  <div id="ok">
+    <a class="open" id="open" href="#">Ouvrir dans Pioche</a>
+  </div>
+
+  <p class="error" id="bad" hidden>Ce lien d'invitation est incomplet. Demande à ton ami de te le renvoyer depuis Pioche.</p>
+
+  <section class="help">
+    <h2>Pioche ne s'ouvre pas ?</h2>
+    <p>L'app n'est pas encore sur le Play Store ni l'App Store. Demande à ton ami de t'installer Pioche, puis touche à nouveau ce lien : l'invitation t'attendra.</p>
+    <p>Une fois l'app ouverte, tu deviens ami avec lui en un geste.</p>
+  </section>
+</main>
+<script>
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+    var token = (params.get('t') || '').trim().toLowerCase();
+    var valid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(token);
+    if (!valid) {
+      document.getElementById('ok').hidden = true;
+      document.getElementById('bad').hidden = false;
+      return;
+    }
+    var deepLink = 'tablee://invite?token=' + token;
+    // Android : lien « intent » (Chrome ouvre l'app installée, sinon reste ici).
+    var isAndroid = /android/i.test(navigator.userAgent);
+    // App absente : retour sur cette page (marquée « s=1 » pour ne pas relancer
+    // l'ouverture) plutôt que vers un Play Store où Pioche n'est pas encore.
+    var fallback = window.location.origin + window.location.pathname + '?t=' + token + '&s=1';
+    var href = isAndroid
+      ? 'intent://invite?token=' + token + '#Intent;scheme=tablee;package=com.tablee.app;S.browser_fallback_url=' +
+        encodeURIComponent(fallback) + ';end'
+      : deepLink;
+    var button = document.getElementById('open');
+    button.href = href;
+    // Tentative d'ouverture directe ; si le navigateur la bloque, le bouton reste là.
+    if (params.get('s') !== '1') {
+      window.setTimeout(function () { window.location.href = href; }, 300);
+    }
+  })();
+</script>
+</body>
+</html>
